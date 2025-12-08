@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from datetime import date
-from typing import List
+from datetime import date, datetime
+from typing import List, Optional
 
 class LogExerciseRequest(BaseModel):
     exercise_id: int
@@ -128,6 +128,51 @@ class ScreenTimeResponse(BaseModel):
     start_time: datetime
     end_time: Optional[datetime] = None
     total_minutes: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+# --- Auth Schemas ---
+
+class UserRegister(BaseModel):
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class VerifyCode(BaseModel):
+    session_id: str
+    verification_code: str
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+    user: dict # or a specifically typed user object
+
+class TokenData(BaseModel):
+    parent_id: Optional[str] = None
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    token_type: str
+    expires_in: int
+
+class LineLoginCallback(BaseModel):
+    code: str
+    state: str
+
+class UserResponse(BaseModel):
+    parent_id: int
+    email: str
+    line_id: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True

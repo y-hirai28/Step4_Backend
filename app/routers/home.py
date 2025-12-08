@@ -6,11 +6,11 @@ from app.database import get_db
 from app import models, schemas
 
 router = APIRouter(
-    prefix="/api",
+    prefix="/home",
     tags=["home"]
 )
 
-@router.get("/home/{child_id}", response_model=schemas.HomeResponse)
+@router.get("/{child_id}", response_model=schemas.HomeResponse)
 def get_home_data(child_id: int, db: Session = Depends(get_db)):
     # 1. Verify Child Exists
     child = db.query(models.Child).filter(models.Child.child_id == child_id).first()

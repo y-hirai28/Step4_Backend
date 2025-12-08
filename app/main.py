@@ -1,5 +1,8 @@
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException
+from dotenv import load_dotenv
+
+load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
@@ -27,6 +30,9 @@ app.add_middleware(
 )
 
 app.include_router(exercise.router, prefix="/api", tags=["exercise"])
+from app.routers import auth, home
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+app.include_router(home.router, prefix="/api/v1", tags=["home"])
 
 @app.get("/")
 def read_root():

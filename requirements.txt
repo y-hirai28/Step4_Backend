@@ -5,3 +5,6 @@ pydantic
 python-dotenv
 aiosqlite
 # mysql-connector-python  # Uncomment for production
+passlib[bcrypt]
+python-jose[cryptography]
+requests

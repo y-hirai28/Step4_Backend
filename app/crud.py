@@ -2,8 +2,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
 from datetime import date, datetime, timedelta
-from typing import List, Tuple
-from app import models
+from typing import List, Tuple, Optional
+from app import models, schemas, utils
 
 def get_exercise_stats(db: Session, child_id: int) -> dict:
     """統計情報を計算"""
@@ -154,3 +154,101 @@ def init_db(db: Session):
         db.add_all(exercises)
         db.commit()
 
+
+# --- Auth CRUD ---
+
+def get_parent_by_email(db: Session, email: str):
+    return db.query(models.Parent).filter(models.Parent.email == email).first()
+
+def create_parent(db: Session, user: schemas.UserRegister):
+    hashed_password = utils.get_password_hash(user.password)
+    db_user = models.Parent(email=user.email, password_hash=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def create_parent_via_line(db: Session, email: str, line_id: str):
+    # LINEログインで新規登録の場合（パスワードなし）
+    db_user = models.Parent(email=email, line_id=line_id, is_email_verified=True)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def update_parent_line_id(db: Session, parent_id: int, line_id: str):
+    parent = db.query(models.Parent).filter(models.Parent.parent_id == parent_id).first()
+    if parent:
+        parent.line_id = line_id
+        parent.updated_at = datetime.utcnow() # Update timestamp
+        db.commit()
+        db.refresh(parent)
+    return parent
+
+def store_verification_code(db: Session, email: str, code: str, session_id: str):
+    # Store hashed code? Spec says hashed.
+    code_hash = utils.get_password_hash(code) 
+    expires_at = datetime.utcnow() + timedelta(minutes=5)
+    
+    db_code = models.VerificationCode(
+        session_id=session_id,
+        email=email,
+        code_hash=code_hash,
+        expires_at=expires_at
+    )
+    db.add(db_code)
+    db.commit()
+    return db_code
+
+def verify_code(db: Session, session_id: str, plain_code: str):
+    record = db.query(models.VerificationCode).filter(models.VerificationCode.session_id == session_id).first()
+    if not record:
+        return None
+    
+    if record.expires_at < datetime.utcnow():
+        return None # Expired
+        
+    if not utils.verify_password(plain_code, record.code_hash):
+        return None # Invalid code
+        
+    # Mark as verified (or delete)
+    record.verified = True
+    db.commit()
+    return record
+
+def store_refresh_token(db: Session, parent_id: int, token: str):
+    token_hash = utils.get_token_hash(token)
+    expires_at = datetime.utcnow() + timedelta(days=7)
+    
+    db_token = models.RefreshToken(
+        parent_id=parent_id,
+        token_hash=token_hash,
+        expires_at=expires_at
+    )
+    db.add(db_token)
+    db.commit()
+    return db_token
+
+def get_refresh_token_record(db: Session, token: str):
+    # This is tricky since we store hash. We can't query by token.
+    # Usually refresh token rotation involves sending the token, finding the user/session associated (if we stored it unhashed or with an ID), 
+    # but spec says store hash.
+    # If we store ONLY hash, we can't find the record efficiently without an ID.
+    # But usually the client sends the refresh token. 
+    # Let's assume for now we verify it against all tokens for the user? No, that's inefficient.
+    # Re-reading spec: "データベースに保存(ハッシュ化)"
+    # A standard way is to return a transparent token ID or just handle it like a password.
+    # However, for refresh tokens, usually we store them so we can REVOKE them.
+    # Unlike passwords, we can store the token itself or a hash. If hash, we need a way to look it up.
+    # Maybe the refresh token contains the ID? 
+    # For now, let's implement lookup by verifying it against user's tokens if we had logical association, 
+    # but to be practical: we might need to store the raw token or use the JWT ID (jti) in the DB.
+    # Given the spec, let's assume we decode the JWT to get the user ID, then iterate/check? 
+    # Or simply: The RefreshToken model has `token_hash`. 
+    # If we receive a JWT refresh token, we can get `sub` (parent_id). 
+    # Then we check valid refresh tokens for that parent.
+    return None 
+    
+def revoke_refresh_token(db: Session, token: str):
+    # Need to find it first.
+    pass
