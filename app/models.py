@@ -55,8 +55,36 @@ class Parent(Base):
     __tablename__ = "Parent"
 
     parent_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    email = Column(String(100), unique=True, index=True)
-    line_id = Column(String(100))
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=True) # Check if fits bcrypt hash
+    line_id = Column(String(255), unique=True, index=True, nullable=True)
+    is_email_verified = Column(Boolean, default=False)
+    last_login_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    refresh_tokens = relationship("RefreshToken", back_populates="parent", cascade="all, delete-orphan")
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    token_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    parent_id = Column(Integer, ForeignKey("Parent.parent_id"), nullable=False)
+    token_hash = Column(String(255), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+    parent = relationship("Parent", back_populates="refresh_tokens")
+
+class VerificationCode(Base):
+    __tablename__ = "verification_codes"
+
+    verification_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    session_id = Column(String(36), unique=True, index=True, nullable=False)
+    email = Column(String(255), index=True, nullable=False)
+    code_hash = Column(String(255), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    verified = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
 
 class Settings(Base):
@@ -78,16 +106,7 @@ class EyeTest(Base):
     right_eye = Column(String(10)) 
     created_at = Column(DateTime, server_default=func.now())
 
-class DistanceCheck(Base):
-    __tablename__ = "DistanceCheck"
 
-    check_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    child_id = Column(Integer, ForeignKey("Child.child_id"), index=True, nullable=False)
-    check_date = Column(Date, nullable=False)
-    avg_distance_cm = Column(Float)
-    posture_score = Column(Integer) # e.g. 0-100
-    alert_flag = Column(Integer, default=0) # 0: No Alert, 1: Alerted
-    created_at = Column(DateTime, server_default=func.now())
 
 class ScreenTime(Base):
     __tablename__ = "ScreenTime"

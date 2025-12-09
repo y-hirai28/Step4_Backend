@@ -1,12 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import crud, schemas
+from app import crud, schemas, models
 from app.database import get_db
+# 本番環境では以下のコメントを外して認証を有効化
+# from app.routers.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/child/{child_id}/exercise/stats", response_model=schemas.ExerciseStats)
-def get_stats(child_id: int, db: Session = Depends(get_db)):
+def get_stats(
+    child_id: int,
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     """統計情報取得"""
     try:
         stats = crud.get_exercise_stats(db, child_id)
@@ -18,7 +25,9 @@ def get_stats(child_id: int, db: Session = Depends(get_db)):
 def log_exercise_endpoint(
     child_id: int,
     request: schemas.LogExerciseRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
 ):
     """エクササイズ実施記録"""
     try:
