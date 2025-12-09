@@ -154,6 +154,34 @@ def init_db(db: Session):
         db.add_all(exercises)
         db.commit()
 
+    # Seed Demo Users
+    demo_users = [
+        {"email": "demo@example.com", "password": "demo123", "child_name": "デモ太郎"},
+        {"email": "test@example.com", "password": "test123", "child_name": "テスト花子"}
+    ]
+
+    for user_data in demo_users:
+        if not get_parent_by_email(db, user_data["email"]):
+            # Create Parent
+            hashed_pwd = utils.get_password_hash(user_data["password"])
+            new_parent = models.Parent(
+                email=user_data["email"], 
+                password_hash=hashed_pwd,
+                is_email_verified=True
+            )
+            db.add(new_parent)
+            db.commit()
+            db.refresh(new_parent)
+            
+            # Create Default Child
+            new_child = models.Child(
+                name=user_data["child_name"],
+                parent_id=new_parent.parent_id
+            )
+            db.add(new_child)
+            db.commit()
+            print(f"Created demo user: {user_data['email']}")
+
 
 # --- Auth CRUD ---
 

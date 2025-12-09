@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 import math
 from app.database import get_db
 from app import models, schemas
+# 本番環境では以下のコメントを外して認証を有効化
+# from app.routers.auth import get_current_user
 
 router = APIRouter(
     prefix="/api/screentime",
@@ -11,7 +13,12 @@ router = APIRouter(
 )
 
 @router.post("/start", response_model=schemas.ScreenTimeStatus)
-def start_screentime(request: schemas.ScreenTimeCreate, db: Session = Depends(get_db)):
+def start_screentime(
+    request: schemas.ScreenTimeCreate,
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     # Check if there is already an active session for this child
     # If active session exists (end_time is Null), resume it
     active_session = db.query(models.ScreenTime)\
@@ -36,7 +43,12 @@ def start_screentime(request: schemas.ScreenTimeCreate, db: Session = Depends(ge
     return create_status_response(new_session, 0)
 
 @router.get("/status", response_model=schemas.ScreenTimeStatus)
-def get_status(child_id: int, db: Session = Depends(get_db)):
+def get_status(
+    child_id: int,
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     active_session = db.query(models.ScreenTime)\
         .filter(models.ScreenTime.child_id == child_id)\
         .filter(models.ScreenTime.end_time == None)\
@@ -55,7 +67,12 @@ def get_status(child_id: int, db: Session = Depends(get_db)):
     return create_status_response(active_session, elapsed)
 
 @router.post("/end", response_model=schemas.ScreenTimeResponse)
-def end_screentime(request: schemas.ScreenTimeBase, db: Session = Depends(get_db)):
+def end_screentime(
+    request: schemas.ScreenTimeBase,
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     active_session = db.query(models.ScreenTime)\
         .filter(models.ScreenTime.child_id == request.child_id)\
         .filter(models.ScreenTime.end_time == None)\

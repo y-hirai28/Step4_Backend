@@ -4,6 +4,8 @@ from typing import List
 from datetime import date
 from app.database import get_db
 from app import models, schemas
+# 本番環境では以下のコメントを外して認証を有効化
+# from app.routers.auth import get_current_user
 
 router = APIRouter(
     prefix="/home",
@@ -11,8 +13,18 @@ router = APIRouter(
 )
 
 @router.get("/{child_id}", response_model=schemas.HomeResponse)
-def get_home_data(child_id: int, db: Session = Depends(get_db)):
+def get_home_data(
+    child_id: int,
+    db: Session = Depends(get_db),
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     # 1. Verify Child Exists
+    # 本番環境では認証を有効化した場合、以下のクエリに parent_id チェックを追加
+    # child = db.query(models.Child).filter(
+    #     models.Child.child_id == child_id,
+    #     models.Child.parent_id == current_user.parent_id  # 所有者チェック
+    # ).first()
     child = db.query(models.Child).filter(models.Child.child_id == child_id).first()
     if not child:
         # For development, if child doesn't exist, we might want to return dummy data or create one?
@@ -99,6 +111,10 @@ def get_home_data(child_id: int, db: Session = Depends(get_db)):
     )
 
 @router.get("/character/message/{child_id}")
-def get_character_message(child_id: int):
+def get_character_message(
+    child_id: int,
+    # 本番環境では以下のコメントを外して認証を有効化
+    # current_user: models.Parent = Depends(get_current_user)
+):
     # This could be a separate lighter endpoint for just updating the message
     return {"message": "きょうもがんばろう！"}
