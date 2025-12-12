@@ -26,3 +26,4 @@ env.bak/
 *.db
 *.sqlite3
 *.log
+.env
