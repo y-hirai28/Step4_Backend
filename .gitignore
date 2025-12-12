@@ -30,3 +30,4 @@ venv.bak/
 *.db
 *.sqlite3
 *.log
+certs/\n*.pem\n*.crt
