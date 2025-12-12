@@ -229,3 +229,27 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MeasurementResultCreate(BaseModel):
+    eye: str
+    distance: str
+    visual_acuity: float
+
+class RfpEyeTestCreate(BaseModel):
+    child_id: int = 1
+    left_eye: Optional[float] = None
+    right_eye: Optional[float] = None
+    test_type: str = "3m"
+
+class RfpEyeTest(BaseModel):
+    id: int
+    child_id: int
+    check_date: datetime
+    left_eye: Optional[float] = None
+    right_eye: Optional[float] = None
+    recovery_level: Optional[float] = None
+    test_type: str
+
+    class Config:
+        from_attributes = True
+

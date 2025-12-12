@@ -1,5 +1,5 @@
 # app/models.py
-from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey, UniqueConstraint, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey, UniqueConstraint, Boolean, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -109,7 +109,25 @@ class EyeTest(Base):
     created_at = Column(DateTime, server_default=func.now())
     test_distance_cm = Column(Integer, nullable=True) # Added for measurement distance
 
+class MeasurementResult(Base):
+    __tablename__ = "measurement_results"
 
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(DateTime, server_default=func.now())
+    eye = Column(String(10)) # "left" or "right"
+    distance = Column(String(10)) # "30cm" or "3m"
+    visual_acuity = Column(Float)
+
+class RfpEyeTest(Base):
+    __tablename__ = "rfp_eye_tests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    child_id = Column(Integer, default=1) 
+    check_date = Column(DateTime, server_default=func.now())
+    left_eye = Column(Float, nullable=True)
+    right_eye = Column(Float, nullable=True)
+    recovery_level = Column(Float, nullable=True)
+    test_type = Column(String(10), default="3m") # "3m" or "30cm"
 
 class ScreenTime(Base):
     __tablename__ = "ScreenTime"
