@@ -35,6 +35,8 @@ class Child(Base):
     child_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     parent_id = Column(Integer, index=True) 
     name = Column(String(50), index=True)
+    age = Column(Integer, nullable=True)
+    grade = Column(String(20), nullable=True)
     
     distance_checks = relationship("DistanceCheck", back_populates="child")
 
@@ -105,6 +107,7 @@ class EyeTest(Base):
     left_eye = Column(String(10)) # e.g. "1.0", "A"
     right_eye = Column(String(10)) 
     created_at = Column(DateTime, server_default=func.now())
+    test_distance_cm = Column(Integer, nullable=True) # Added for measurement distance
 
 
 

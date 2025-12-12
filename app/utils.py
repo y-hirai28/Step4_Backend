@@ -62,5 +62,7 @@ def verify_token(token: str, credentials_exception):
 def generate_verification_code(length=6):
     return ''.join(secrets.choice(string.digits) for _ in range(length))
 
+import uuid
+
 def generate_session_id():
-    return secrets.token_urlsafe(32)
+    return str(uuid.uuid4())
