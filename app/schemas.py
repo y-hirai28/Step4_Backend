@@ -51,9 +51,16 @@ class DistanceCheck(BaseModel):
 
 class ChildBase(BaseModel):
     name: str
+    age: Optional[int] = None
+    grade: Optional[str] = None
 
 class ChildCreate(ChildBase):
-    pass
+    parent_id: int
+
+class ChildUpdate(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    grade: Optional[str] = None
 
 class Child(ChildBase):
     child_id: int
@@ -88,7 +95,10 @@ class ParentBase(BaseModel):
 
 class Parent(ParentBase):
     parent_id: int
-    created_at: Optional[date] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
 
 class SettingsBase(BaseModel):
     parent_id: int
@@ -101,12 +111,32 @@ class SettingsUpdate(BaseModel):
 
 class Settings(SettingsBase):
     settings_id: int
-    updated_at: Optional[date] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
-# --- Screen Time Schemas ---
+# --- Eye Test Schemas ---
+
+class EyeTestBase(BaseModel):
+    left_eye: Optional[str] = None
+    right_eye: Optional[str] = None
+    test_distance_cm: Optional[int] = None
+
+class EyeTestCreate(EyeTestBase):
+    child_id: int
+    # check_date handled by server
+
+class EyeTest(EyeTestBase):
+    test_id: int
+    child_id: int
+    check_date: date
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 
 class ScreenTimeBase(BaseModel):
     child_id: int
@@ -131,6 +161,29 @@ class ScreenTimeResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- Dashboard Schemas ---
+
+class ExerciseLogResponse(BaseModel):
+    log_id: int
+    child_id: int
+    exercise_id: int
+    exercise_date: date
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class DashboardChildResponse(BaseModel):
+    child: Child
+    recent_exercises: List[ExerciseLogResponse] = [] # Need to ensure LogResponse is available or use a generic one
+    recent_distance_checks: List[DistanceCheck] = []
+    recent_eye_tests: List[EyeTest] = []
+    recent_screentime: List[ScreenTimeResponse] = []
+
+class DashboardParentResponse(BaseModel):
+    parent: Parent
+    children_data: List[DashboardChildResponse]
 
 # --- Auth Schemas ---
 
