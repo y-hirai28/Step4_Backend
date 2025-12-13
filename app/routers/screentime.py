@@ -8,7 +8,7 @@ from app import models, schemas
 # from app.routers.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/screentime",
+    prefix="/screentime",
     tags=["screentime"]
 )
 
