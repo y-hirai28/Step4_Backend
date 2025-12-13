@@ -27,3 +27,4 @@ env.bak/
 *.sqlite3
 *.log
 .env
+certs/\n*.pem\n*.crt
