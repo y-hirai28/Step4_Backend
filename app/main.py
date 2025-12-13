@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from datetime import date
 from typing import List
 
-from app.routers import exercise
+from app.routers import exercise, vision_test
 from app.database import engine, get_db, SessionLocal
 from app import models, crud, schemas
 
@@ -30,6 +30,7 @@ app.add_middleware(
 )
 
 app.include_router(exercise.router, prefix="/api", tags=["exercise"])
+app.include_router(vision_test.router, prefix="/api", tags=["vision_test"])
 from app.routers import auth, home, dashboard
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(home.router, prefix="/api/v1", tags=["home"])
