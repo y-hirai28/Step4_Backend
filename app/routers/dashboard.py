@@ -31,12 +31,12 @@ def get_child_dashboard(child_id: int, db: Session = Depends(get_db)):
         recent_eye_tests = db.query(models.EyeTest)\
             .filter(models.EyeTest.child_id == child_id)\
             .order_by(models.EyeTest.check_date.desc())\
-            .limit(5).all()
-            
+            .limit(30).all()
+
         recent_screentime = db.query(models.ScreenTime)\
             .filter(models.ScreenTime.child_id == child_id)\
             .order_by(models.ScreenTime.start_time.desc())\
-            .limit(5).all()
+            .limit(30).all()
 
         # Manually validate and return valid model
         try:
@@ -85,12 +85,12 @@ def get_parent_dashboard(parent_id: int, db: Session = Depends(get_db)):
         recent_eye_tests = db.query(models.EyeTest)\
             .filter(models.EyeTest.child_id == child.child_id)\
             .order_by(models.EyeTest.check_date.desc())\
-            .limit(5).all()
-            
+            .limit(30).all()
+
         recent_screentime = db.query(models.ScreenTime)\
             .filter(models.ScreenTime.child_id == child.child_id)\
             .order_by(models.ScreenTime.start_time.desc())\
-            .limit(5).all()
+            .limit(30).all()
             
         children_data.append({
             "child": child,
