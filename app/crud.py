@@ -214,10 +214,10 @@ def update_parent_line_id(db: Session, parent_id: int, line_id: str):
     return parent
 
 def store_verification_code(db: Session, email: str, code: str, session_id: str):
-    # Store hashed code? Spec says hashed.
-    code_hash = utils.get_password_hash(code) 
+    # Use lightweight SHA256 hashing instead of bcrypt for performance
+    code_hash = utils.get_token_hash(code)
     expires_at = datetime.utcnow() + timedelta(minutes=5)
-    
+
     db_code = models.VerificationCode(
         session_id=session_id,
         email=email,
@@ -232,11 +232,11 @@ def verify_code(db: Session, session_id: str, plain_code: str):
     record = db.query(models.VerificationCode).filter(models.VerificationCode.session_id == session_id).first()
     if not record:
         return None
-    
+
     if record.expires_at < datetime.utcnow():
         return None # Expired
-        
-    if not utils.verify_password(plain_code, record.code_hash):
+
+    if not utils.verify_token_hash(plain_code, record.code_hash):
         return None # Invalid code
         
     # Mark as verified (or delete)
