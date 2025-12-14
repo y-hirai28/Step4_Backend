@@ -19,7 +19,7 @@ db = SessionLocal()
 crud.init_db(db)
 db.close()
 
-app = FastAPI(title="Merelax API")
+app = FastAPI(title="Mememe API")
 
 app.add_middleware(
     CORSMiddleware,
