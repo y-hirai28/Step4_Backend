@@ -31,11 +31,10 @@ app.add_middleware(
 
 app.include_router(exercise.router, prefix="/api", tags=["exercise"])
 app.include_router(vision_test.router, prefix="/api", tags=["vision_test"])
-from app.routers import auth, home, dashboard, screentime
+from app.routers import auth, home, dashboard
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(home.router, prefix="/api/v1", tags=["home"])
 app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"])
-app.include_router(screentime.router, prefix="/api/v1", tags=["screentime"])
 
 from app.routers import settings
 app.include_router(settings.router) # Prefix is defined in settings.py as /api
