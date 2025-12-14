@@ -24,7 +24,25 @@ def read_results(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
 
 @router.post("/eyetests", response_model=None)
 def create_eyetest(eyetest: schemas.RfpEyeTestCreate, db: Session = Depends(get_db)):
-    # Use RfpEyeTest model to avoid conflict with existing EyeTest
+    from datetime import date
+
+    # Check if there's already a test for this child today
+    today = date.today()
+    existing_test = db.query(models.RfpEyeTest)\
+        .filter(models.RfpEyeTest.child_id == eyetest.child_id)\
+        .filter(db.func.date(models.RfpEyeTest.check_date) == today)\
+        .first()
+
+    if existing_test:
+        # Update existing test
+        existing_test.left_eye = eyetest.left_eye
+        existing_test.right_eye = eyetest.right_eye
+        existing_test.test_type = eyetest.test_type
+        db.commit()
+        db.refresh(existing_test)
+        return existing_test
+
+    # Create new test
     db_eyetest = models.RfpEyeTest(
         child_id=eyetest.child_id,
         left_eye=eyetest.left_eye,
