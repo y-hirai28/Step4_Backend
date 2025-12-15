@@ -14,7 +14,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME")
-SSL_CERT_PATH = os.getenv("SSL_CERT_PATH", "certs/DigiCertGlobalRootG2.crt.pem")
+SSL_CERT_PATH = os.getenv("SSL_CERT_PATH")
 
 if DATABASE_URL:
     # Use explicit DATABASE_URL (e.g. from Azure)
