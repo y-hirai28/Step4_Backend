@@ -119,8 +119,8 @@ class Settings(SettingsBase):
 # --- Eye Test Schemas ---
 
 class EyeTestBase(BaseModel):
-    left_eye: Optional[str] = None
-    right_eye: Optional[str] = None
+    left_eye: Optional[float] = None
+    right_eye: Optional[float] = None
     test_distance_cm: Optional[int] = None
 
 class EyeTestCreate(EyeTestBase):
