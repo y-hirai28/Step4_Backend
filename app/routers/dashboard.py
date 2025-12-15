@@ -84,7 +84,7 @@ def get_parent_dashboard(parent_id: int, db: Session = Depends(get_db)):
 
         recent_eye_tests = db.query(models.EyeTest)\
             .filter(models.EyeTest.child_id == child.child_id)\
-            .order_by(models.EyeTest.check_date.desc())\
+            .order_by(models.EyeTest.check_date.desc(), models.EyeTest.created_at.desc())\
             .limit(30).all()
 
         recent_screentime = db.query(models.ScreenTime)\
