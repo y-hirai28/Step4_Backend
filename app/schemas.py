@@ -82,6 +82,7 @@ class LastResults(BaseModel):
     distance_check_date: Optional[date] = None
     avg_distance_cm: Optional[float] = None
     posture_score: Optional[int] = None
+    total_screentime_minutes: Optional[int] = None
 
 class HomeResponse(BaseModel):
     missions: List[DailyMission]
