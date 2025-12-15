@@ -88,11 +88,21 @@ def get_home_data(
         last_results.eye_test_date = last_eye_test.check_date
         last_results.left_eye = last_eye_test.left_eye
         last_results.right_eye = last_eye_test.right_eye
-    
+
     if last_distance_check:
         last_results.distance_check_date = last_distance_check.check_date
         last_results.avg_distance_cm = last_distance_check.avg_distance_cm
         last_results.posture_score = last_distance_check.posture_score
+
+    # Get latest completed screentime session
+    last_screentime = db.query(models.ScreenTime)\
+        .filter(models.ScreenTime.child_id == child_id)\
+        .filter(models.ScreenTime.end_time != None)\
+        .order_by(models.ScreenTime.end_time.desc())\
+        .first()
+
+    if last_screentime:
+        last_results.total_screentime_minutes = last_screentime.total_minutes
 
     # 4. Character Message Logic
     # Simple logic based on completion
