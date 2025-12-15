@@ -42,7 +42,7 @@ def get_home_data(
     # Eye Test Status
     last_eye_test = db.query(models.EyeTest)\
         .filter(models.EyeTest.child_id == child_id)\
-        .order_by(models.EyeTest.check_date.desc())\
+        .order_by(models.EyeTest.check_date.desc(), models.EyeTest.created_at.desc())\
         .first()
         
     eye_test_done = last_eye_test and last_eye_test.check_date == today
