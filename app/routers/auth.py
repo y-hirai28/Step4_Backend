@@ -24,8 +24,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     payload = utils.verify_token(token, credentials_exception)
-    parent_id: int = payload.get("sub")
-    if parent_id is None:
+    parent_id_str: str = payload.get("sub")
+    if parent_id_str is None:
+        raise credentials_exception
+    try:
+        parent_id = int(parent_id_str)
+    except (ValueError, TypeError):
         raise credentials_exception
     user = db.query(models.Parent).filter(models.Parent.parent_id == parent_id).first()
     if user is None:
@@ -74,11 +78,11 @@ def verify_code(data: schemas.VerifyCode, db: Session = Depends(get_db)):
 
     access_token_expires = timedelta(minutes=utils.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = utils.create_access_token(
-        data={"sub": user.parent_id}, expires_delta=access_token_expires
+        data={"sub": str(user.parent_id)}, expires_delta=access_token_expires
     )
-    
+
     refresh_token = utils.create_refresh_token(
-        data={"sub": user.parent_id}
+        data={"sub": str(user.parent_id)}
     )
     
     # Store refresh token hash
@@ -165,8 +169,8 @@ def line_callback(data: schemas.LineLoginCallback, db: Session = Depends(get_db)
         user = crud.create_parent_via_line(db, dummy_email, line_user_id)
     
     # Issue JWT
-    access_token = utils.create_access_token(data={"sub": user.parent_id})
-    refresh_token = utils.create_refresh_token(data={"sub": user.parent_id})
+    access_token = utils.create_access_token(data={"sub": str(user.parent_id)})
+    refresh_token = utils.create_refresh_token(data={"sub": str(user.parent_id)})
     crud.store_refresh_token(db, user.parent_id, refresh_token)
     
     return {
@@ -217,9 +221,10 @@ def refresh_token(request: schemas.RefreshRequest, db: Session = Depends(get_db)
     
     try:
         payload = utils.verify_token(request.refresh_token, credentials_exception)
-        parent_id: int = payload.get("sub")
-        if parent_id is None:
+        parent_id_str: str = payload.get("sub")
+        if parent_id_str is None:
             raise credentials_exception
+        parent_id = int(parent_id_str)
     except Exception:
         raise credentials_exception
         
@@ -228,7 +233,7 @@ def refresh_token(request: schemas.RefreshRequest, db: Session = Depends(get_db)
     
     access_token_expires = timedelta(minutes=utils.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = utils.create_access_token(
-        data={"sub": parent_id}, expires_delta=access_token_expires
+        data={"sub": str(parent_id)}, expires_delta=access_token_expires
     )
     
     return {
