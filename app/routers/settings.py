@@ -6,8 +6,9 @@ from app import models, schemas
 # 本番環境では以下のコメントを外して認証を有効化
 # from app.routers.auth import get_current_user
 
+
 router = APIRouter(
-    prefix="/api",
+    prefix="/api/v1",
     tags=["settings"]
 )
 
