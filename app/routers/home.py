@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import date
+from datetime import date, datetime
+import random
 from app.database import get_db
 from app import models, schemas
 # 本番環境では以下のコメントを外して認証を有効化
@@ -105,14 +106,57 @@ def get_home_data(
         last_results.total_screentime_minutes = last_screentime.total_minutes
 
     # 4. Character Message Logic
-    # Simple logic based on completion
-    completed_count = sum(1 for m in missions if m.status == "completed")
-    if completed_count == 4:
-        message = "ぜんぶクリア！すごいね！あしたもがんばろう！"
-    elif completed_count >= 1:
-        message = "そのちょうし！あとのミッションもやってみよう！"
+    # Time-based or general messages (randomly selected)
+    now = datetime.now()
+    hour = now.hour
+
+    # 時間帯別メッセージ
+    morning_messages = [
+        "おはよう！きょうも にこにこだね！",
+        "おきた？めも おきたよ！",
+        "きょうは どんな いちにちに なるかな？"
+    ]
+
+    afternoon_messages = [
+        "こんにちは！げんきに あそんでる？"
+    ]
+
+    evening_messages = [
+        "きょうも いっぱい がんばったね",
+        "そろそろ めを やすめよう",
+        "おやすみ！また あした あそぼうね！"
+    ]
+
+    # ふだん用メッセージ
+    general_messages = [
+        "きょうも あいにきてくれて うれしい！",
+        "めが きらきらしてるね！",
+        "こんにちは！きょうも いっしょに みよう！",
+        "めを たいせつに してるね！えらいね！",
+        "きょうも たのしく すごそうね！",
+        "めめめが みまもってるよ！"
+    ]
+
+    # 時間帯別メッセージもしくは普段用メッセージのどちらかを選択
+    use_time_based = random.choice([True, False])
+
+    if use_time_based:
+        # 時間帯別メッセージを表示
+        if 5 <= hour < 11:
+            # 朝（5:00〜10:59）
+            message = random.choice(morning_messages)
+        elif 11 <= hour < 18:
+            # 昼（11:00〜17:59）
+            message = random.choice(afternoon_messages)
+        elif 18 <= hour < 24:
+            # 夜（18:00〜23:59）
+            message = random.choice(evening_messages)
+        else:
+            # 深夜（0:00〜4:59）はふだん用メッセージにフォールバック
+            message = random.choice(general_messages)
     else:
-        message = "今日は距離チェックまだだよ！めをまもろう！"
+        # ふだん用メッセージを表示
+        message = random.choice(general_messages)
 
     return schemas.HomeResponse(
         missions=missions,
