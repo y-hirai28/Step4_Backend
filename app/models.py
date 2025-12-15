@@ -104,8 +104,8 @@ class EyeTest(Base):
     test_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     child_id = Column(Integer, ForeignKey("Child.child_id"), index=True, nullable=False)
     check_date = Column(Date, nullable=False)
-    left_eye = Column(String(10)) # e.g. "1.0", "A"
-    right_eye = Column(String(10)) 
+    left_eye = Column(Float) # Changed to Float
+    right_eye = Column(Float) # Changed to Float
     created_at = Column(DateTime, server_default=func.now())
     test_distance_cm = Column(Integer, nullable=True) # Added for measurement distance
 
