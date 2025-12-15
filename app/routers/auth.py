@@ -183,6 +183,29 @@ def line_callback(data: schemas.LineLoginCallback, db: Session = Depends(get_db)
 def read_users_me(current_user: models.Parent = Depends(get_current_user)):
     return current_user
 
+@router.get("/children")
+def get_my_children(
+    current_user: models.Parent = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all children associated with the logged-in parent"""
+    children = db.query(models.Child).filter(
+        models.Child.parent_id == current_user.parent_id
+    ).all()
+
+    # Convert to list of dictionaries for JSON response
+    return {
+        "children": [
+            {
+                "child_id": child.child_id,
+                "name": child.name,
+                "age": child.age,
+                "grade": child.grade
+            }
+            for child in children
+        ]
+    }
+
 @router.post("/refresh", response_model=schemas.RefreshResponse)
 def refresh_token(request: schemas.RefreshRequest, db: Session = Depends(get_db)):
     # Verify refresh token
