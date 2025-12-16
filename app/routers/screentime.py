@@ -58,7 +58,7 @@ def get_status(
         return schemas.ScreenTimeStatus(
             screentime_id=0,
             is_active=False,
-            message="計測していないよ",
+            message="きょうは まだ つかってないよ",
             alert_level=0,
             elapsed_seconds=0
         )
