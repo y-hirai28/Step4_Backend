@@ -1,12 +1,13 @@
 # app/main.py
 from fastapi import FastAPI, Depends, HTTPException
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
-from typing import List
+from typing import List, Optional
 
 from app.routers import exercise, vision_test
 from app.database import engine, get_db, SessionLocal
@@ -19,7 +20,22 @@ db = SessionLocal()
 crud.init_db(db)
 db.close()
 
-app = FastAPI(title="Mememe API")
+# 環境変数からドキュメント設定を読み込む
+ENABLE_DOCS = os.getenv("ENABLE_DOCS", "false").lower() == "true"
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+
+# 本番環境ではドキュメントを無効化
+docs_url: Optional[str] = "/docs" if ENABLE_DOCS else None
+redoc_url: Optional[str] = "/redoc" if ENABLE_DOCS else None
+openapi_url: Optional[str] = "/openapi.json" if ENABLE_DOCS else None
+
+app = FastAPI(
+    title="Mememe API",
+    docs_url=docs_url,
+    redoc_url=redoc_url,
+    openapi_url=openapi_url,
+    description=f"Vision Care API - Environment: {ENVIRONMENT}"
+)
 
 app.add_middleware(
     CORSMiddleware,
